@@ -216,6 +216,8 @@ COPY ["conf/etc/zabbix/zabbix_java_gateway_logback.xml", "/etc/zabbix/"]
 COPY ["conf/usr/sbin/zabbix_java_gateway", "/usr/sbin/"]
 COPY ["docker-entrypoint.sh", "/usr/bin/"]
 
+RUN chmod +x /usr/bin/docker-entrypoint.sh
+
 ENV ZBX_TYPE=appliance
 
 ENTRYPOINT ["docker-entrypoint.sh"]

@@ -1,0 +1,65 @@
+kind: Deployment
+apiVersion: apps/v1beta1
+metadata:
+  name: zabbix-app
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: zabbix-app
+    spec:
+      containers:
+        - name: zabbix-app
+          image: zabbix/zabbix-appliance:ubuntu-latest
+          ports: 
+            - containerPort: 80
+          env:
+            - name: ZBX_SERVER_NAME
+              value: Composed installation ixjx
+            - name: PHP_TZ
+              value: Asia/ShangHai
+          resources:
+            requests:
+              cpu: 1
+              memory: 1Gi
+            limits:
+              cpu: 2
+              memory: 2Gi
+          volumeMounts:
+#            - mountPath: /etc/localtime
+#              name: localtime
+#              readOnly: true
+#            - mountPath: /etc/timezone
+#              name: timezone
+#              readOnly: true
+            - mountPath: /var/lib/zabbix
+              name: zbxdata
+      volumes:
+#        - name: localtime
+#          hostPath:
+#            path: /etc/localtime
+#        - name: timezone
+#          hostPath:
+#            path: /etc/timezone
+        - name: zbxdata
+          persistentVolumeClaim:
+            claimName: zbxpvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zabbix-svc
+spec:
+  type: LoadBalancer
+  selector:
+    run: zabbix-app
+  ports:
+    - name: web
+      protocol: TCP
+      port: 80
+      targetPort: 80
+    - name: zbx-server
+      protocol: TCP
+      port: 10051
+      targetPort: 10051
